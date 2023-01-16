@@ -32,12 +32,26 @@ def get_burguer(
         extra: Optional[str] = None):
     return {"item_id": burguer_id, "q": q, "ingredientes": ingredientes, "extra": extra}
 
+#llamada para crear una nueva burguer
+@app.post("/burguers/{burguer_id}")
+def create_burguerprueba(
+        burguer_id: int, 
+		q: Optional[str] = None,
+        ingredientes: Optional[str] = None,
+        extra: Optional[str] = None):
+    return {"item_id": burguer_id, "q": q, "ingredientes": ingredientes, "extra": extra}
 
+@app.get("/burguers/{burguer_id}")
+def get_burguerprueba(burguer_id: int):
+    return {"item_id": burguer_id}
+
+
+"""
 #llamada para crear una nueva burguer
 @app.post("/burguers/{burguer_id}")
 def create_burguers(burguers: Burguer = Body(...)): 
     return burguers
-    
+    """
 """ejemplo burguer creada con éxito (no se guardan los datos mas allá del id):
 {
   "id": 0,
@@ -53,6 +67,10 @@ def create_burguers(burguers: Burguer = Body(...)):
 def update_item(burguer_id: int, burguer: Burguer):
     return {"item_name": burguer.nombre, "item_id": burguer_id}
 
+#DELETE para eliminar un recurso del servidor
+@app.delete("/burguers/{burguer_id}")
+async def prueba_delete(burguier_id: int, burguer: Burguer):
+    return 
 
 '''asyncio is used as a foundation for multiple Python 
 asynchronous frameworks that provide high-performance 
