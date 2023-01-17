@@ -1,3 +1,4 @@
+#Dockerizar la app meter en un contenedor la api
 Para crear el contenedor de PostgreesSQL:
 docker run --name contenedorbbdd -p 5432:5432 -e POSTGRES_PASSWORD=password -d postgres
 

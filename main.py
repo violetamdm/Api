@@ -1,16 +1,16 @@
-
 #fastapi:
 '''Instalado fastapi y Uvicorn con pip'''
 #comando para empezar la API: uvicorn main:app --reload
 #import asyncio
 #import datetime
+#import requests
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import Optional
 from fastapi import Body
-
+#crear archivo .gitignore
 app = FastAPI()
-
+#orm
 class Burguer(BaseModel):
      id: int 
      nombre: str
@@ -20,39 +20,15 @@ class Burguer(BaseModel):
 #llamada al home de la API
 @app.get("/")  
 def home():  
-	return { "mensaje" : "Esta es la raíz de la app bienvenido" }
-
-
-#llamada que va path burguers y que tome el burguer_id que estamos pasando como parametro
-@app.get("/burguers/{burguer_id}")
-def get_burguer( 
-		burguer_id: int, 
-		q: Optional[str] = None,
-        ingredientes: Optional[str] = None,
-        extra: Optional[str] = None):
-    return {"item_id": burguer_id, "q": q, "ingredientes": ingredientes, "extra": extra}
+	 return { "mensaje" : "Esta es la raíz de la app bienvenido" }
 
 #llamada para crear una nueva burguer
 @app.post("/burguers/{burguer_id}")
-def create_burguerprueba(
-        burguer_id: int, 
-		q: Optional[str] = None,
-        ingredientes: Optional[str] = None,
-        extra: Optional[str] = None):
-    return {"item_id": burguer_id, "q": q, "ingredientes": ingredientes, "extra": extra}
+def create_burguers(burguer_id: int, burguers: Burguer = Body(...)): 
+    return {burguer_id: int, burguers:Burguer}
 
-@app.get("/burguers/{burguer_id}")
-def get_burguerprueba(burguer_id: int):
-    return {"item_id": burguer_id}
-
-
-"""
-#llamada para crear una nueva burguer
-@app.post("/burguers/{burguer_id}")
-def create_burguers(burguers: Burguer = Body(...)): 
-    return burguers
-    """
-"""ejemplo burguer creada con éxito (no se guardan los datos mas allá del id):
+""" 
+ejemplo burguer creada con éxito (no se guardan los datos mas allá del id):
 {
   "id": 0,
   "nombre": "cheseburguer",
@@ -60,8 +36,31 @@ def create_burguers(burguers: Burguer = Body(...)):
   "ingredientesextra": "ketchup"
 }
 """
+# Si este post (anterior) no funciona probar copn esto:
+'''
+#llamada para crear una nueva burguer
+@app.post("/burguers/{burguer_id}")
+def create_burguerprueba(
+         burguer_id: int, 
+		 q: Optional[str] = None,
+         ingredientes: Optional[str] = None,
+         extra: Optional[str] = None):
+     return {"item_id": burguer_id, "q": q, "ingredientes": ingredientes, "extra": extra}
+'''
 
-    
+#llamada que va path burguers y que tome el burguer_id que estamos pasando como parametro
+@app.get("/burguers/{burguer_id}")
+def get_burguer( 
+		 burguer_id: int, 
+		 q: Optional[str] = None,
+         ingredientes: Optional[str] = None,
+         extra: Optional[str] = None):
+     return {"item_id": burguer_id, "q": q, "ingredientes": ingredientes, "extra": extra}
+
+@app.get("/burguers/{burguer_id}")
+def get_burguerprueba(burguer_id: int):
+     return {"item_id": burguer_id}
+
 #llamada para actualizar un item en específico. 
 @app.put("/burguers/{burguer_id}")
 def update_item(burguer_id: int, burguer: Burguer):
@@ -69,9 +68,10 @@ def update_item(burguer_id: int, burguer: Burguer):
 
 #DELETE para eliminar un recurso del servidor
 @app.delete("/burguers/{burguer_id}")
-async def prueba_delete(burguier_id: int, burguer: Burguer):
-    return 
+async def prueba_delete(burguer_id: int, burguer: Burguer):
+    return  {"item_name": burguer.nombre}
 
+"""
 '''asyncio is used as a foundation for multiple Python 
 asynchronous frameworks that provide high-performance 
 network and web-servers, database connection libraries, 
@@ -99,7 +99,6 @@ print("hay " + burgers + "burguers")
 '''
 ''' Síncrono es cuando hay que esperar respuestas y se usa 
 solo "def" '''
-"""
 
 '''
 #POST para crear un recurso del servidor
