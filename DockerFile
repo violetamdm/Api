@@ -1,5 +1,6 @@
 FROM python:3.11
-
+##ARG MYSQL_SERVER
+##ARG POSTGRES_SERVER
 WORKDIR /Api
 
 COPY ./requirements.txt ./Api/requirements.txt
@@ -7,9 +8,10 @@ COPY ./requirements.txt ./Api/requirements.txt
 #RUN pip install -r ./requirements.txt
 
 EXPOSE 8000
-
+ENTRYPOINT uvicorn $APP --app-dir $APP\_DIR --reload
 CMD ["uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8000"]
-
+ENV PATH=/home/violeta.macias/.local/bin:${PATH}
+#C:\Users\violeta.macias\proyectos\Api
 #CMD ["main:app", "--port", "8000"] 
 #"uvicorn" lo acabo de quitar
 #FROM python:3.11 
@@ -29,6 +31,7 @@ CMD ["uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8000"]
 #puse esto:
 #docker run -d --name appython4 -p 8000:8000 imagdock3
 #no funciona el comando de creacioon de docker 
+#Mirar esto: https://stackoverflow.com/questions/72235848/starting-container-process-caused-exec-uvicorn-executable-file-not-found-in
 #Mirar esto: https://stackoverflow.com/questions/72235848/starting-container-process-caused-exec-uvicorn-executable-file-not-found-in?rq=1
 #docker run -p 8080:8080 -d <your-username>/node-app-name
 #docker build . -t imagdock
