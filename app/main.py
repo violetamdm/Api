@@ -167,5 +167,11 @@ class TryTesting(TestCase):
     def test_always_fails(self):
         self.assertTrue(False)
 
+
+def test_read_main():
+    response = client.get("/")
+    assert response.status_code == 200
+    assert response.json() == {"msg": "Hello World"}
+
 #Por consola:
 # python -m unittest discover
