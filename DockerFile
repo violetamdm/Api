@@ -8,11 +8,13 @@ COPY ./requirements.txt ./Api/requirements.txt
 #RUN pip install -r ./requirements.txt
 
 EXPOSE 8000
+
 #Esto es importante por alguna razon (ENTRYPOINT):
 #ENTRYPOINT es el comando que define que archivos 
 #se ejecutarán cuando se inicie el contenedor
 
-ENV PATH=/home/violeta.macias/.local/bin:${PATH}
+#ENV PATH=/home/violeta.macias/.local/bin:${PATH}
+
 RUN pip install -r ./Api/requirements.txt
 ENTRYPOINT uvicorn $APP --app-dir $APP\_DIR --reload
 CMD ["uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8000"]
