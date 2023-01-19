@@ -4,30 +4,67 @@
 #import asyncio
 #import datetime
 #import requests
-from fastapi import FastAPI
+from typing import List
+from fastapi import Depends, FastAPI, HTTPException
+from sqlalchemy.orm import Session
+import crud, models, schemas
+from database import SessionLocal, engine
+
 from pydantic import BaseModel
-from typing import Optional
-from fastapi import Body
+
+models.Base.metadata.create_all(bind=engine)
 #crear archivo .gitignore
 
-
 app = FastAPI()
-#orm
-class Burguer(BaseModel):
-     id: int 
-     nombre: str
-     ingredientes: str
-     ingredientesextra: str
+
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 #llamada al home de la API
 @app.get("/")  
 def home():  
 	 return { "mensaje" : "Esta es la raíz de la app bienvenido" }
 
+
 #llamada para crear una nueva burguer
-@app.post("/burguers/{burguer_id}")
-def create_burguers(burguer_id: int, burguers: Burguer = Body(...)): 
-    return {burguer_id: int, burguers:Burguer}
+@app.post("/burguers/", response_model=schemas.Burguer)
+def create_burguer(
+    burguer: schemas.BurguerCreate,  
+    db: Session = Depends(get_db)
+    ): 
+    db_burguer = crud.get_burguer_by_nombre(db, nombre=burguer.nombre)
+    db_burguer2 = crud.get_burguer_by_ingredientes(db, ingredientes=burguer.ingredientes)
+    if db_burguer:
+        raise HTTPException(status_code=400, detail="Nombre already registered")
+    else: 
+        if db_burguer2:
+            raise HTTPException(status_code=400, detail="Ingredientes already registered")
+    return crud.create_burguer(db=db, burguer=burguer)
+
+
+#llamada para actualizar un item en específico. 
+@app.put("/burguers/{burguer_id}", response_model=schemas.Burguer)
+def update_burguer(burguer: schemas.BurguerCreate,  
+    db: Session = Depends(get_db)):
+    return crud.create_burguer(db=db, burguer=burguer)
+
+
+@app.get("/burguers/", response_model=List[schemas.Burguer])
+def read_burguers(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    burguers = crud.get_burguers(db, skip=skip, limit=limit)
+    return burguers
+
+@app.get("/burguers/{burguer_id}", response_model=schemas.Burguer)
+def read_burguer(burguer_id: int, db: Session = Depends(get_db)):
+    db_burguer = crud.get_burguer(db, burguer_id=burguer_id)
+    if db_burguer is None:
+        raise HTTPException(status_code=404, detail="Burguer not found")
+    return db_burguer
 
 """ 
 ejemplo burguer creada con éxito (no se guardan los datos mas allá del id):
@@ -49,7 +86,8 @@ def create_burguerprueba(
          extra: Optional[str] = None):
      return {"item_id": burguer_id, "q": q, "ingredientes": ingredientes, "extra": extra}
 '''
-
+#################### Esto lo hice antes de la bbdd: ########################
+"""
 #llamada que va path burguers y que tome el burguer_id que estamos pasando como parametro
 @app.get("/burguers/{burguer_id}")
 def get_burguer( 
@@ -72,7 +110,8 @@ def update_item(burguer_id: int, burguer: Burguer):
 @app.delete("/burguers/{burguer_id}")
 async def prueba_delete(burguer_id: int, burguer: Burguer):
     return  {"item_name": burguer.nombre}
-
+"""
+########################################
 """
 '''asyncio is used as a foundation for multiple Python 
 asynchronous frameworks that provide high-performance 
