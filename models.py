@@ -1,8 +1,5 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
-from sqlalchemy.orm import relationship
-
+from sqlalchemy import Boolean, Column, Integer, String
 from database import Base
-
 
 class Burguer(Base):
     __tablename__ = "burguers"
@@ -10,7 +7,7 @@ class Burguer(Base):
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String, unique=True, index=True)
     ingredientes = Column(String, unique=True, index=True)
-    ingredientesextra = Column(String, unique=False, index=True)
+    ingredientesextra = Column(String, default=True)
     is_active = Column(Boolean, default=True)
     #items = relationship("Item", back_populates="owner")
 

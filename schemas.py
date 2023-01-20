@@ -1,9 +1,5 @@
-from typing import List, Union
-
 from pydantic import BaseModel
-
 """
-
 class ItemBase(BaseModel):
     title: str
     description: Union[str, None] = None
@@ -21,22 +17,13 @@ class Item(ItemBase):
         orm_mode = True
 """
 
-
-class BurguerBase(BaseModel):
-    nombre: str
-
-
-class BurguerCreate(BurguerBase):
-    ingredientes: str
-    ingredientesextra: str
-
-
-
-
-class Burguer(BurguerBase):
+class Burguer(BaseModel):
     id: int
     is_active: bool
-    #ingredientesextra: str
-    #No sé para que es esto:
+    ingredientes: str
+    ingredientesextra: str
+    nombre: str
     class Config:
         orm_mode = True
+
+
