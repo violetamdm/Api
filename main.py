@@ -210,6 +210,10 @@ IMPORTANTE: Aquí esta la API http://127.0.0.1:8000/docs
 '''
 #pytest
 from unittest import TestCase
+'''from fastapi.testclient import TestClient'''
+
+'''client = TestClient(app)'''
+
 #pytest main.py
 '''
 def test_read_main():
@@ -227,17 +231,11 @@ class TryTesting(TestCase):
 def test_get_home():
     assert home() ==  { "mensaje" : "Esta es la raíz de la app bienvenido" }
 
-def test_get_burguer_by_id():
-    db = Depends(get_db)
-    burguer = models.Burguer(
-        nombre = "Paco",
-        ingredientes = "Poco pelo"
-        )
-    '''db.add(burguer)
-    db.commit()
-    db.refresh(burguer)'''
-    assert burguer_by_id(1, db) == burguer.__getattribute__(id)
-    
+'''def test_get_all():
+    response = client.get("/burguers")
+    assert response.status_code == 200
+    #assert response.json()'''
+
 '''
 def test_read_main():
     response = client.get("/")
