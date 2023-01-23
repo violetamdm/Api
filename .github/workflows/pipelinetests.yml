@@ -33,4 +33,4 @@ jobs:
       - name: Run a multi-line script
         run: |
           echo Empieza a ajecutar el pipeline:
-          fdgfdgr pytest main.py
+          pytest main.py
