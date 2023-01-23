@@ -14,6 +14,40 @@ def get_burguer_by_nombre(db: Session, nombre: str):
 def get_burguer_by_ingredientes(db: Session, ingredientes: str):
     return db.query(models.Burguer).filter(models.Burguer.ingredientes == ingredientes).first()
 
+def update_burguer_name(db: Session, burguer_id: int, newnombre: str):
+    #db.query(models.Burguer).filter(models.Burguer.id == burguer_id).update(models.Burguer.nombre == newnombre)
+    db.query(models.Burguer).update(models.Burguer.nombre == newnombre)
+    db.commit()
+    return db.query(models.Burguer).filter(models.Burguer.id == burguer_id)
+
+'''def update_burguer_name(db: Session, burguer_id: int, newnombre: str):
+    #db.query(models.Burguer).filter(models.Burguer.id == burguer_id).update(models.Burguer.nombre == newnombre)
+    db.query(models.Burguer).update(models.Burguer.nombre == newnombre)
+    db.commit()
+    return db.query(models.Burguer).filter(models.Burguer.id == burguer_id)
+
+
+def update_burguer_name2(db: Session, burguer_id: int, newnombre: str):
+    #burguer = db.query(models.Burguer).filter(models.Burguer.id == burguer_id)
+    burguer = get_burguer_by_id(db, burguer_id)
+    burguer2 = burguer.copy()
+    burguer2.se
+    db.add(burguer2)
+    db.commit()
+    return db.query(models.Burguer).filter(models.Burguer.id == burguer_id)'''
+
+'''def update_burguer_name3(db: Session, burguer: schemas.Burguer, newnombre : str):
+    #burguer = db.query(models.Burguer).filter(models.Burguer.id == burguer_id)
+    db.delete(burguer)
+    db.add(burguer.set_name(newnombre))
+    db.commit()
+    return db.query(models.Burguer).filter(models.Burguer.id == burguer_id)'''
+
+def update_burguer_name5(db: Session, newnombre : str, id: int):
+    query="UPDATE burguers SET nombre = " + newnombre + " WHERE id= "+ str(id)
+    db.execute(query)
+    db.commit()
+    return "consulta realizada"
 
 
 def get_burguers(db: Session, skip: int = 0, limit: int = 100):
@@ -31,29 +65,11 @@ def post_create_burguer(db: Session, burguer: schemas.Burguer):
 
 #he añadido esto:
 #Acabar:
-def put_burguer_edit_burguer(db: Session, burguer: schemas.Burguer, burguerdelete: schemas.Burguer):
-    '''db_burguer2 = models.Burguer(
-        ingredientesextra = burguer.ingredientesextra,
-        ingredientes = burguer.ingredientes,
-        is_active = burguer.is_active,
-        id = burguerdelete.id,
-        nombre = burguerdelete.nombre
-        )'''
-    db.add(burguer)
-    db.refresh(burguer)
-    db.commit()
-    return burguer
 
 def delete_burguer(db: Session, burguer: schemas.Burguer):
     db.delete(burguer)
     db.commit()
     return db
-
-def actualizar_ingredienetesextra(ingredienetesextra: str, db: Session, burguer: schemas.Burguer):
-    burguer.ingredientesextra = ingredienetesextra
-    db.refresh(burguer)
-    db.commit()
-    pass
 
 """
 def get_items(db: Session, skip: int = 0, limit: int = 100):

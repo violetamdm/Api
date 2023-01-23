@@ -9,8 +9,16 @@ from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 import crud, models, schemas
 from database import SessionLocal, engine
-from pydantic import BaseModel
 import schemas
+from fastapi import status
+from typing import  List
+from fastapi.testclient import TestClient
+from fastapi import APIRouter
+
+router =  APIRouter()
+
+client = TestClient(router)
+
 models.Base.metadata.create_all(bind=engine)
 #crear archivo .gitignore
 
@@ -28,7 +36,7 @@ def get_db():
         db.close()
 
 #llamada al home de la API
-@app.get("/")  
+@app.get("/", status_code=status.HTTP_200_OK)  
 def home():  
 	 return { "mensaje" : "Esta es la raíz de la app bienvenido" }
 
@@ -40,12 +48,12 @@ def update_burguer(burguer_id: int, db: Session = Depends(get_db)):
     return crud.put_burguer_edit_burguer(db, db_burguer) 
 '''
 
-@app.get("/burguers/", response_model=List[schemas.Burguer])
+@app.get("/burguers/", response_model=List[schemas.Burguer], status_code=status.HTTP_200_OK)
 def get_burguers(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     burguers = crud.get_burguers(db, skip=skip, limit=limit)
     return burguers
 
-@app.get("/burguers/{burguer_id}", response_model=schemas.Burguer)
+@app.get("/burguers/{burguer_id}", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
 def burguer_by_id(burguer_id: int, db: Session = Depends(get_db)):
     db_burguer = crud.get_burguer_by_id(db, burguer_id=burguer_id)
     if db_burguer is None:
@@ -54,16 +62,16 @@ def burguer_by_id(burguer_id: int, db: Session = Depends(get_db)):
 
 #DELETE para eliminar un recurso del servidor
 @app.delete("/burguers/{burguer_id}")
-def prueba_delete_by_id(burguer_id: int, db: Session = Depends(get_db)):
+def prueba_delete_by_id(burguer_id: int, db: Session = Depends(get_db), status_code=status.HTTP_200_OK):
     burguer=crud.get_burguer_by_id(db, burguer_id)
     return  crud.delete_burguer(db, burguer)
 
 #llamada para crear una nueva burguer
-@app.post("/burguers/", response_model=schemas.Burguer)
+@app.post("/burguers/", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
 def create_burguer(
     burguer: schemas.Burguer,  
     db: Session = Depends(get_db)
-    ): 
+    ):  
     db_burguer = crud.get_burguer_by_nombre(db, nombre=burguer.nombre)
     db_burguer2 = crud.get_burguer_by_ingredientes(db, ingredientes=burguer.ingredientes)
     if db_burguer:
@@ -73,28 +81,22 @@ def create_burguer(
             raise HTTPException(status_code=400, detail="Other burguer have the same ingredients")
     return crud.post_create_burguer(db=db, burguer=burguer)
 
-"""@app.put("/burguers/",  response_model=schemas.Burguer)
-def update_burguer(burguer: schemas.Burguer , burguer_id: int, db: Session = Depends(get_db)):
-    db_burguer = crud.get_burguer_by_nombre(db, nombre=burguer.nombre)
-    '''db_burguer2 = crud.get_burguer_by_ingredientes(db, ingredientes=burguer.ingredientes)
+'''#response_model=schemas.Burguer
+@app.put("/burguers/", status_code=status.HTTP_200_OK)
+def update_burguer(burguer_id: int, nombrenuevo: str, db: Session = Depends(get_db)):
+    db_burguer = crud.get_burguer_by_nombre(db, nombrenuevo)
     if db_burguer:
         raise HTTPException(status_code=400, detail="Nombre already registered")
-    else: 
-        if db_burguer2:
-            raise HTTPException(status_code=400, detail="Other burguer have the same ingredients")
-    db_burguer = crud.get_burguer_by_id(db, burguer_id)'''
-    crud.delete_burguer(db, db_burguer, burguer_id)
-    crud.post_create_burguer(db, burguer)
-    return  "se hizo un put
+    return  crud.update_burguer_name5(db, nombrenuevo, burguer_id)'''
 
-    
-@app.put("/burguers/",  response_model=schemas.Burguer)
-def update_burguer(ingredientesextra: schemas.Burguer.ingredientesextra , burguer_id: int, db: Session = Depends(get_db)):
-    db_burguer = crud.get_burguer_by_id(db, burguer_id)
-    crud.actualizar_ingredienetesextra(ingredientesextra, db, db_burguer)
-    return  "se hizo un put"
-    #return crud.put_burguer_edit_burguer(db, burguer, db_burguer)
-    """
+    #response_model=schemas.Burguer
+@app.put("/burguers/", status_code=status.HTTP_200_OK)
+def update_burguer(burguer_id: int, nombrenuevo: str, db: Session = Depends(get_db)):
+    "{ \"id\" : 0, \" is_active \" : true, \"ingredientes\": \"string\", \"ingredientesextra\": \"string\",\"nombre\": \"string\" }"
+    db_burguer = crud.get_burguer_by_nombre(db, nombrenuevo)
+    if db_burguer:
+        raise HTTPException(status_code=400, detail="Nombre already registered")
+    return  crud.update_burguer_name5(db, nombrenuevo, burguer_id)
 
 #################### Esto lo hice antes de la bbdd: ########################
 """
@@ -210,7 +212,7 @@ IMPORTANTE: Aquí esta la API http://127.0.0.1:8000/docs
 '''
 #pytest
 from unittest import TestCase
-'''from fastapi.testclient import TestClient'''
+from fastapi.testclient import TestClient
 
 '''client = TestClient(app)'''
 
@@ -231,16 +233,14 @@ class TryTesting(TestCase):
 def test_get_home():
     assert home() ==  { "mensaje" : "Esta es la raíz de la app bienvenido" }
 
-'''def test_get_all():
-    response = client.get("/burguers")
+def test_get_by_title():
+    response = client.get("/burguers/1")
     assert response.status_code == 200
-    #assert response.json()'''
 
-'''
 def test_read_main():
     response = client.get("/")
     assert response.status_code == 200
     assert response.json() == {"msg": "Hello World"}
-'''
+
 #Por consola:
 # python -m unittest discover
