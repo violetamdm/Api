@@ -1,0 +1,44 @@
+FROM python:3.11
+##ARG MYSQL_SERVER
+##ARG POSTGRES_SERVER
+WORKDIR /Api
+
+COPY ./requirements.txt ./Api/requirements.txt
+
+#RUN pip install -r ./requirements.txt
+
+EXPOSE 8000
+
+#Esto es importante por alguna razon (ENTRYPOINT):
+#ENTRYPOINT es el comando que define que archivos 
+#se ejecutarán cuando se inicie el contenedor
+
+#ENV PATH=/home/violeta.macias/.local/bin:${PATH}
+
+RUN pip install -r ./Api/requirements.txt
+ENTRYPOINT uvicorn $APP --app-dir $APP\_DIR --reload
+CMD ["uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8000"]
+#ENV PATH=/home/violeta.macias/.local/bin:${PATH}
+
+
+#C:\Users\violeta.macias\proyectos\Api
+#CMD ["main:app", "--port", "8000"] 
+#"uvicorn" lo acabo de quitar
+#FROM python:3.11 
+#FROM python : versión para determinar de dónde viene el servidor elegido
+#WORKDIR C:\Users\violeta.macias\proyectos\Api
+#WORKDIR / nombre de la carpeta este se usa para decir qué información tendrá dentro el contenedor cuando se inicia en el equipo
+#COPY . Carpetadocker
+#COPY . / nombre de la carpeta para copiar los elementos dentro de esa carpeta
+#EXPOSE 8000
+#EXPOSE + puerto especificando el puerto que se usa
+# Se debe especificar el entrypoint y el comando: ENTRYPOINT “[“npm”]” y CMD “[“start”]” respectivamente
+# para descargas la imagen de python en docker: docker pull python:3.9.16-slim-bullseye
+#CMD [ "python", "main.py" ]
+
+#para crear la imagen:
+#docker build -t imagdock . -f DockerFile
+#para crear el contenedor:
+#puse esto:
+#docker run -d --name appython -p 8000:8000 imagdock
+
