@@ -27,16 +27,20 @@ def update_burguer_name(db: Session, burguer_id: int, newnombre: str, burguer: s
     db.refresh(db_burguer)
     return db.query(models.Burguer).filter(models.Burguer.id == burguer.id)
 
+def get_ing(burguer: schemas.Burguer):
+    return burguer.ingredientes
 
-def put_burguer_name(db: Session, burguer: schemas.Burguer, burguerborrada: schemas.Burguer):
+def put_burguer_name_and_ingredients(db: Session, burguer: schemas.Burguer, burguerborrada: schemas.Burguer):
     db_burguer = models.Burguer(
         nombre = burguer.nombre,
         ingredientes = burguer.ingredientes
         )
+    db.delete(burguerborrada) #new
+    #db_burguer.ingredientes =  burguerborrada.ingredientes
     db.add(db_burguer)
     db.commit()
     db.refresh(db_burguer)
-    db.delete(burguerborrada)
+    #db.delete(burguerborrada)
     db.commit()
     return db_burguer
 

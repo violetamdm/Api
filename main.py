@@ -96,7 +96,7 @@ def update_burguer(burguer_id: int, nombrenuevo: str, db: Session = Depends(get_
     return  crud.update_burguer_name5(db, nombrenuevo, burguer_id)'''
 
 @app.put("/burguers/", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
-def put_burguer(burguer_id: int,
+def update_burguer_nombre_and_ingredientes(burguer_id: int,
     burguer: schemas.Burguer,  
     db: Session = Depends(get_db)
     ):  
@@ -108,7 +108,7 @@ def put_burguer(burguer_id: int,
     else: 
         if db_burguer2:
             raise HTTPException(status_code=400, detail="Other burguer have the same ingredients")
-    return crud.put_burguer_name(db=db, burguer=burguer, burguerborrada=burguerborrar)
+    return crud.put_burguer_name_and_ingredients(db=db, burguer=burguer, burguerborrada=burguerborrar)
 '''
 @app.put("/burguers/{burguer_id}", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
 def update_burguer(burguer_id: int, nombrenuevo: str, db: Session = Depends(get_db)):
