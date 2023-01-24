@@ -50,10 +50,12 @@ def put_burguer2(db: Session, burguer: schemas.Burguer, burguerborrada: schemas.
         ingredientes = burguer.ingredientes
         )
     db.add(db_burguer)
+    db.query(models.Burguer).filter(models.Burguer.nombre == burguer.nombre).update(models.Burguer.ingredientes == burguerborrada.ingredientes)
     db.commit()
     db.refresh(db_burguer)
     db.delete(burguerborrada)
     db.commit()
+    db.execute()
     return db_burguer
 
 '''def update_burguer_name(db: Session, burguer_id: int, newnombre: str):

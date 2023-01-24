@@ -210,4 +210,6 @@ def test_read_main():
 ###############################################################################################
 
 #Por consola:
-# python -m unittest discover
+# ir a proyectos\Api
+#Ejecutar comando: 
+# pytest main.py
