@@ -44,4 +44,4 @@ jobs:
           pip install sqlalchemy
           
       - name: Run pytest
-        run: pytest main.py
+        run: pytest
