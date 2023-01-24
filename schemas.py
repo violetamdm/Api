@@ -18,6 +18,7 @@ class Item(ItemBase):
 """
 
 class Burguer(BaseModel):
+    #identificador_interno: int
     id: int
     is_active: bool
     ingredientes: str
@@ -25,5 +26,15 @@ class Burguer(BaseModel):
     nombre: str
     class Config:
         orm_mode = True
+
+class New(BaseModel):
+    #identificador_interno: int
+    id: int
+    name: str
+    ingredientes: str
+    class Config:
+        orm_mode = True
+    
+    
 
 

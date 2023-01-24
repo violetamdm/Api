@@ -1,0 +1,104 @@
+
+name: Python application
+
+on:                      # yamllint disable rule:truthy
+  push:
+    branches:
+      - master
+      - 'feature/*'
+  schedule:
+    - cron: '0 0 * * *'  # daily
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+        with:
+          python-version: '3.10.4'
+
+      - name: setup
+        run: |
+          python -m pip install --upgrade pip virtualenv
+          python -m virtualenv venv
+          source venv/bin/activate
+          pip install -Ur requirements.txt
+          python --version
+          pip --version
+          virtualenv --version
+          echo isort $(isort --version-number)
+          black --version
+          flake8 --version
+          pylint --version
+          yamllint --version
+      - name: check
+        run: |
+          source venv/bin/activate
+          isort --check --diff \
+            read_yaml.py employees/*.py utils/*.py tests/*.py
+          black --check \
+            read_yaml.py employees/*.py utils/*.py tests/*.py
+          pylint \
+            read_yaml.py employees/*.py utils/*.py tests/*.py
+          yamllint --strict \
+            .*.yml .github/workflows/*.yml *.yml tests/*.yaml
+      - name: test
+        run: |
+          source venv/bin/activate
+          pytest -v --cov-report term-missing --cov=employees tests/
+      - name: run
+        run: |
+          source venv/bin/activate
+          python -m read_yaml -h
+          python -m read_yaml --version
+          python -m read_yaml -v tests/test.yaml
+      - name: document
+        run: |
+          source venv/bin/activate
+          pytest -v --html=cover/report.html \
+            --cov=employees --cov-report=html:cover tests/
+          coverage html -d cover employees/employees.py
+          (cd docs; make html)
+      - name: publish
+        uses: JamesIves/github-pages-deploy-action@v4
+        if: success()
+        with:
+          branch: gh-pages
+          folder: target/docs/html
+############################################ejemplo 2#######################################################
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+strategy:
+  matrix:
+    Python37:
+      python.version: '3.7'
+    Python38:
+      python.version: '3.8'
+    Python39:
+      python.version: '3.9'
+    Python310:
+      python.version: '3.10'
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '$(python.version)'
+  displayName: 'Use Python $(python.version)'
+
+- script: |
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+  displayName: 'Install dependencies'
+
+- script: |
+    pip install pytest pytest-azurepipelines
+    pytest
+  displayName: 'pytest'
