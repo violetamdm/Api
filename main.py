@@ -4,6 +4,7 @@
 #import asyncio
 #import datetime
 #import requests
+from ast import Dict
 from typing import List
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
@@ -14,6 +15,11 @@ from fastapi import status
 from typing import  List
 from fastapi.testclient import TestClient
 from fastapi import APIRouter
+
+from fastapi import APIRouter, Query, status
+from pydantic import Required
+from typing import Dict, List
+
 
 router =  APIRouter()
 
@@ -89,15 +95,82 @@ def update_burguer(burguer_id: int, nombrenuevo: str, db: Session = Depends(get_
         raise HTTPException(status_code=400, detail="Nombre already registered")
     return  crud.update_burguer_name5(db, nombrenuevo, burguer_id)'''
 
-    #response_model=schemas.Burguer
-@app.put("/burguers/", status_code=status.HTTP_200_OK)
+@app.put("/burguers/", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
+def put_burguer(burguer_id: int,
+    burguer: schemas.Burguer,  
+    db: Session = Depends(get_db)
+    ):  
+    burguerborrar = crud.get_burguer_by_id(db, burguer_id)
+    db_burguer = crud.get_burguer_by_nombre(db, nombre=burguer.nombre)
+    db_burguer2 = crud.get_burguer_by_ingredientes(db, ingredientes=burguer.ingredientes)
+    if db_burguer:
+        raise HTTPException(status_code=400, detail="Nombre already registered")
+    else: 
+        if db_burguer2:
+            raise HTTPException(status_code=400, detail="Other burguer have the same ingredients")
+    return crud.put_burguer_name(db=db, burguer=burguer, burguerborrada=burguerborrar)
+'''
+@app.put("/burguers/{burguer_id}", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
+def update_burguer(burguer_id: int, nombrenuevo: str, db: Session = Depends(get_db)):
+    db_burguer = crud.get_burguer_by_nombre(db, nombrenuevo)
+    if db_burguer:
+        raise HTTPException(status_code=400, detail="Nombre already registered")
+    burguer = burguer_by_id(burguer_id, db)
+    return  crud.update_burguer_name(db, nombrenuevo, burguer_id, burguer)'''
+
+    #put intento ultimo dia 23/01/2023:
+'''@app.put("/burguers/{burguer_id}", status_code=status.HTTP_200_OK)
+def update_burguer(burguer_id: int, nombrenuevo: str, db: Session = Depends(get_db)):
+    db_burguer = crud.get_burguer_by_nombre(db, nombrenuevo)
+    if db_burguer:
+        raise HTTPException(status_code=400, detail="Nombre already registered")
+    return  crud.update_burguer_name(db, nombrenuevo, burguer_id)'''
+
+'''
+@app.put("/burguers/{burguer_id}", status_code=status.HTTP_200_OK)
 def update_burguer(burguer_id: int, nombrenuevo: str, db: Session = Depends(get_db)):
     "{ \"id\" : 0, \" is_active \" : true, \"ingredientes\": \"string\", \"ingredientesextra\": \"string\",\"nombre\": \"string\" }"
     db_burguer = crud.get_burguer_by_nombre(db, nombrenuevo)
     if db_burguer:
         raise HTTPException(status_code=400, detail="Nombre already registered")
     return  crud.update_burguer_name5(db, nombrenuevo, burguer_id)
+##########################EJEMPLOS DE PUTS: #############################################################
+@app.put("/items/{item_id}", response_model=Item)
+async def update_item(item_id: str, item: Item):
+    update_item_encoded = jsonable_encoder(item)
+    items[item_id] = update_item_encoded
+    return update_item_encoded
+#https://fastapi.tiangolo.com/tutorial/body-updates/
+@router.put("/burguers/{burguer_id}/",
+            summary="Update a bur",
+            description="""Input an id and update the book with that id.
+                        If the id is not on the database, an exception will be raised.""",
+            tags=["burguers"],
+            response_model=Dict,
+            status_code=status.HTTP_200_OK)
+async def update_u(id: int, burguer: Burguer):
+    try:
+        update_result = burguer.update_u(id, burguer)
+        api_logger.info(f"Book with id: '{id}' succesfully updated.")
+    except ServerError as srve:
+        api_logger.error('{} -> There was an error updating the book with search keyword {}, with the following message: {}'
+                         .format(srve.status_code, id, srve.message))
+        raise srve
+    except BookNotFoundError as bnfe:
+        api_logger.error('{} -> The burguer with id: "{}" was not found. Error message: {}'
+                         .format(bnfe.status_code, id, bnfe.message))
+        raise bnfe
+    return update_result'''
 
+    
+'''@app.patch("/items/{item_id}", response_model=Item)
+async def update_item(item_id: str, item: Item):
+    stored_item_data = items[item_id]
+    stored_item_model = Item(**stored_item_data)
+    update_data = item.dict(exclude_unset=True)
+    updated_item = stored_item_model.copy(update=update_data)
+    items[item_id] = jsonable_encoder(updated_item)
+    return updated_item'''
 #################### Esto lo hice antes de la bbdd: ########################
 """
 #llamada que va path burguers y que tome el burguer_id que estamos pasando como parametro

@@ -14,11 +14,49 @@ def get_burguer_by_nombre(db: Session, nombre: str):
 def get_burguer_by_ingredientes(db: Session, ingredientes: str):
     return db.query(models.Burguer).filter(models.Burguer.ingredientes == ingredientes).first()
 
-def update_burguer_name(db: Session, burguer_id: int, newnombre: str):
+def update_burguer_name(db: Session, burguer_id: int, newnombre: str, burguer: schemas.Burguer):
     #db.query(models.Burguer).filter(models.Burguer.id == burguer_id).update(models.Burguer.nombre == newnombre)
-    db.query(models.Burguer).update(models.Burguer.nombre == newnombre)
+    #db.query(models.Burguer).filter(models.Burguer.id == burguer_id).update(models.Burguer.nombre == newnombre)
+    db_burguer = models.Burguer(
+        nombre = newnombre,
+        ingredientes = burguer.ingredientes
+        )
+    db.add(db_burguer)
+    #db.delete(burguer)
     db.commit()
-    return db.query(models.Burguer).filter(models.Burguer.id == burguer_id)
+    db.refresh(db_burguer)
+    return db.query(models.Burguer).filter(models.Burguer.id == burguer.id)
+
+
+def put_burguer_name(db: Session, burguer: schemas.Burguer, burguerborrada: schemas.Burguer):
+    db_burguer = models.Burguer(
+        nombre = burguer.nombre,
+        ingredientes = burguer.ingredientes
+        )
+    db.add(db_burguer)
+    db.commit()
+    db.refresh(db_burguer)
+    db.delete(burguerborrada)
+    db.commit()
+    return db_burguer
+
+def put_burguer2(db: Session, burguer: schemas.Burguer, burguerborrada: schemas.Burguer):
+    db_burguer = models.Burguer(
+        nombre = burguer.nombre,
+        ingredientes = burguer.ingredientes
+        )
+    db.add(db_burguer)
+    db.commit()
+    db.refresh(db_burguer)
+    db.delete(burguerborrada)
+    db.commit()
+    return db_burguer
+
+'''def update_burguer_name(db: Session, burguer_id: int, newnombre: str):
+    #db.query(models.Burguer).filter(models.Burguer.id == burguer_id).update(models.Burguer.nombre == newnombre)
+    db.query(models.Burguer).filter(models.Burguer.id == burguer_id).update(models.Burguer.nombre == newnombre)
+    db.commit()
+    return db.query(models.Burguer).filter(models.Burguer.id == burguer_id)'''
 
 '''def update_burguer_name(db: Session, burguer_id: int, newnombre: str):
     #db.query(models.Burguer).filter(models.Burguer.id == burguer_id).update(models.Burguer.nombre == newnombre)
@@ -43,11 +81,19 @@ def update_burguer_name2(db: Session, burguer_id: int, newnombre: str):
     db.commit()
     return db.query(models.Burguer).filter(models.Burguer.id == burguer_id)'''
 
-def update_burguer_name5(db: Session, newnombre : str, id: int):
+'''def update_burguer_name5(db: Session, newnombre : str, id: int):
     query="UPDATE burguers SET nombre = " + newnombre + " WHERE id= "+ str(id)
     db.execute(query)
     db.commit()
     return "consulta realizada"
+
+def update_burguer_name6(db: Session, burguerantigua, id: int):
+    db.query(update_burguer_name)
+    db.execute()
+    db.delete(burguerantigua)
+    db.add(burguer)
+    db.commit()
+    return db'''
 
 
 def get_burguers(db: Session, skip: int = 0, limit: int = 100):

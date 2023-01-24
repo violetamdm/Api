@@ -3,8 +3,8 @@ from database import Base
 
 class Burguer(Base):
     __tablename__ = "burguers"
-     
-    id = Column(Integer, primary_key=True, index=True)
+    #identificador_interno=Column(Integer, primary_key=True, index=True)
+    id = Column(Integer,primary_key=True, index=True)
     nombre = Column(String, unique=True, index=True)
     ingredientes = Column(String, unique=True, index=True)
     ingredientesextra = Column(String, default=True)
