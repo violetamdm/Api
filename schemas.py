@@ -27,4 +27,14 @@ class Burguer(BaseModel):
     class Config:
         orm_mode = True
 
+class New(BaseModel):
+    #identificador_interno: int
+    id: int
+    name: str
+    ingredientes: str
+    class Config:
+        orm_mode = True
+    
+    
+
 

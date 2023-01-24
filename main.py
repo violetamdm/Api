@@ -1,5 +1,13 @@
 #fastapi:
 '''Instalado fastapi y Uvicorn con pip'''
+
+'''
+para iniciar la api poner en consola:
+uvicorn main:app --reload 
+
+se encuentra en la direccion http://127.0.0.1:8000/
+IMPORTANTE: Aquí esta la API http://127.0.0.1:8000/docs
+'''
 #comando para empezar la API: uvicorn main:app --reload
 #import asyncio
 #import datetime
@@ -109,123 +117,8 @@ def update_burguer_nombre_and_ingredientes(burguer_id: int,
         if db_burguer2:
             raise HTTPException(status_code=400, detail="Other burguer have the same ingredients")
     return crud.put_burguer_name_and_ingredients(db=db, burguer=burguer, burguerborrada=burguerborrar)
-'''
-@app.put("/burguers/{burguer_id}", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
-def update_burguer(burguer_id: int, nombrenuevo: str, db: Session = Depends(get_db)):
-    db_burguer = crud.get_burguer_by_nombre(db, nombrenuevo)
-    if db_burguer:
-        raise HTTPException(status_code=400, detail="Nombre already registered")
-    burguer = burguer_by_id(burguer_id, db)
-    return  crud.update_burguer_name(db, nombrenuevo, burguer_id, burguer)'''
 
-    #put intento ultimo dia 23/01/2023:
-'''@app.put("/burguers/{burguer_id}", status_code=status.HTTP_200_OK)
-def update_burguer(burguer_id: int, nombrenuevo: str, db: Session = Depends(get_db)):
-    db_burguer = crud.get_burguer_by_nombre(db, nombrenuevo)
-    if db_burguer:
-        raise HTTPException(status_code=400, detail="Nombre already registered")
-    return  crud.update_burguer_name(db, nombrenuevo, burguer_id)'''
-
-'''
-@app.put("/burguers/{burguer_id}", status_code=status.HTTP_200_OK)
-def update_burguer(burguer_id: int, nombrenuevo: str, db: Session = Depends(get_db)):
-    "{ \"id\" : 0, \" is_active \" : true, \"ingredientes\": \"string\", \"ingredientesextra\": \"string\",\"nombre\": \"string\" }"
-    db_burguer = crud.get_burguer_by_nombre(db, nombrenuevo)
-    if db_burguer:
-        raise HTTPException(status_code=400, detail="Nombre already registered")
-    return  crud.update_burguer_name5(db, nombrenuevo, burguer_id)
-##########################EJEMPLOS DE PUTS: #############################################################
-@app.put("/items/{item_id}", response_model=Item)
-async def update_item(item_id: str, item: Item):
-    update_item_encoded = jsonable_encoder(item)
-    items[item_id] = update_item_encoded
-    return update_item_encoded
-#https://fastapi.tiangolo.com/tutorial/body-updates/
-@router.put("/burguers/{burguer_id}/",
-            summary="Update a bur",
-            description="""Input an id and update the book with that id.
-                        If the id is not on the database, an exception will be raised.""",
-            tags=["burguers"],
-            response_model=Dict,
-            status_code=status.HTTP_200_OK)
-async def update_u(id: int, burguer: Burguer):
-    try:
-        update_result = burguer.update_u(id, burguer)
-        api_logger.info(f"Book with id: '{id}' succesfully updated.")
-    except ServerError as srve:
-        api_logger.error('{} -> There was an error updating the book with search keyword {}, with the following message: {}'
-                         .format(srve.status_code, id, srve.message))
-        raise srve
-    except BookNotFoundError as bnfe:
-        api_logger.error('{} -> The burguer with id: "{}" was not found. Error message: {}'
-                         .format(bnfe.status_code, id, bnfe.message))
-        raise bnfe
-    return update_result'''
-
-    
-'''@app.patch("/items/{item_id}", response_model=Item)
-async def update_item(item_id: str, item: Item):
-    stored_item_data = items[item_id]
-    stored_item_model = Item(**stored_item_data)
-    update_data = item.dict(exclude_unset=True)
-    updated_item = stored_item_model.copy(update=update_data)
-    items[item_id] = jsonable_encoder(updated_item)
-    return updated_item'''
-#################### Esto lo hice antes de la bbdd: ########################
-"""
-#llamada que va path burguers y que tome el burguer_id que estamos pasando como parametro
-@app.get("/burguers/{burguer_id}")
-def get_burguer( 
-		 burguer_id: int, 
-		 q: Optional[str] = None,
-         ingredientes: Optional[str] = None,
-         extra: Optional[str] = None):
-     return {"item_id": burguer_id, "q": q, "ingredientes": ingredientes, "extra": extra}
-
-@app.get("/burguers/{burguer_id}")
-def get_burguerprueba(burguer_id: int):
-     return {"item_id": burguer_id}
-
-#llamada para actualizar un item en específico. 
-@app.put("/burguers/{burguer_id}")
-def update_item(burguer_id: int, burguer: Burguer):
-    return {"item_name": burguer.nombre, "item_id": burguer_id}
-
-#DELETE para eliminar un recurso del servidor
-@app.delete("/burguers/{burguer_id}")
-async def prueba_delete(burguer_id: int, burguer: Burguer):
-    return  {"item_name": burguer.nombre}
-"""
-########################################
-"""
-'''asyncio is used as a foundation for multiple Python 
-asynchronous frameworks that provide high-performance 
-network and web-servers, database connection libraries, 
-distributed task queues, etc.'''
-# asyncio.sleep(1) # duerme 1 second
-
-''' Asíncrono es "concurencia" (se usa todo
-lo disponible: busca ser lo mas eficiente posible
-todo el ratos, si tienes que esperar estas ocioso, 
-asique mientras no se ocupan recursos se usan para
-otra cosa) para cuando no hay q sincronizar 
-nada, es decir no hay que esperar una respuesta de ningun sitio
-en este caso son ejemplos y no hay que comunicarse con un 
-servidor "async def" también se usa await'''
-###################################################################
-'''await tiene que estar dentro de una funcion async def'''
-"""
-'''
-async def get_burguers(burguers: int):  
-    await asyncio.sleep(1)
-    return {burguers}
-
-burgers = get_burguers(2)
-print("hay " + burgers + "burguers")
-'''
-''' Síncrono es cuando hay que esperar respuestas y se usa 
-solo "def" '''
-
+# Ejemplos de endpoints:
 '''
 #POST para crear un recurso del servidor
 #llamada para crear un nuevo item
@@ -257,11 +150,6 @@ async def prueba_get(recurso_id: int, q: Optional[str]=None):
     results = {"recurso_id" : recurso_id, "q" : q}
     return results
 
-#Es un GET sin el cuerpo de respuesta ???
-@app.head("/")
-async def prueba_head(id):
-    return {"message": "esto es una prueba"}
-
 #DELETE para eliminar un recurso del servidor
 @app.delete("/")
 async def prueba_delete(id):
@@ -274,14 +162,6 @@ async def prueba_delete(id):
 async def prueba_trace(id):
     return {"message": "esto es una prueba"}
 
-'''
-#connect¿¿¿???
-'''
-para iniciar la api poner en consola:
-uvicorn main:app --reload 
-
-se encuentra en la direccion http://127.0.0.1:8000/
-IMPORTANTE: Aquí esta la API http://127.0.0.1:8000/docs
 '''
 #pytest
 from unittest import TestCase
@@ -303,9 +183,21 @@ class TryTesting(TestCase):
     '''def test_always_fails(self):
         self.assertTrue(False)'''
 
-def test_get_home():
+def test_get_home_connection():
     assert home() ==  { "mensaje" : "Esta es la raíz de la app bienvenido" }
 
+def test_database_burguer():
+    burgueraux = {
+            "id": 1,
+            "is_active": False,
+            "ingredientes": "ole",
+            "ingredientesextra":"ello",
+            "nombre": "sudo"
+            }
+    newbur =  schemas.Burguer(id=1,is_active=False,ingredientes="ole", ingredientesextra="ello", nombre="sudo")
+    assert newbur == burgueraux
+#intentos fallidos:
+"""
 def test_get_by_title():
     response = client.get("/burguers/1")
     assert response.status_code == 200
@@ -313,7 +205,9 @@ def test_get_by_title():
 def test_read_main():
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json() == {"msg": "Hello World"}
+    assert response.json() == {"msg": "Hello World"}"""
+
+###############################################################################################
 
 #Por consola:
 # python -m unittest discover
