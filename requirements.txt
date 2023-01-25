@@ -1,3 +1,7 @@
-fastapi==0.89.1                # Framework web
-uvicorn==0.20.0                # Servidor
+fastapi==0.89.1
+pydantic==1.10.4
+pytest==7.2.1
+SQLAlchemy==1.4.46
+uvicorn==0.20.0
+#pip freeze
 #pip install -r requirements.txt
