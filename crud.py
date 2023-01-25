@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 import models, schemas
 
+
 '''POST'''
 #POST crear hamburguesa recibiendo parámetros
 def post_create_burguer_bien(db: Session, newnombre: str, newingredientes: str, active:int):
@@ -31,6 +32,7 @@ def post_create_burguer(db: Session, burguer: schemas.Burguer):
     db.refresh(db_burguer)
     return db_burguer
 
+
 '''GET'''
 #GET by id
 def get_burguer_by_id(db: Session, burguer_id: int):
@@ -43,12 +45,18 @@ def get_burguer_by_nombre(db: Session, nombre: str):
 #GET by ingredienetes
 def get_burguer_by_ingredientes(db: Session, ingredientes: str):
     return db.query(models.Burguer).filter(models.Burguer.ingredientes == ingredientes).first()
+
+#GET all
+def get_burguers(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(models.Burguer).offset(skip).limit(limit).all()
+
 '''OPTIONS'''
 def options_get_isactive(burguer:models.Burguer):
     return burguer.is_active
 
 def get_ing(burguer: schemas.Burguer):
     return burguer.ingredientes
+
 
 '''PUT'''
 #PUT update name
@@ -97,15 +105,8 @@ def put_burguer(db: Session, newnombre: str, newingredientes: str, newactive: in
     return burgueraeditar
 
 
-
-
-def get_burguers(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Burguer).offset(skip).limit(limit).all()
-
-
-#he añadido esto:
-#Acabar:
-
+'''DELETE'''
+#DELETE burguer by id
 def delete_burguer(db: Session, burguer: schemas.Burguer):
     db.delete(burguer)
     db.commit()
