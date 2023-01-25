@@ -7,9 +7,11 @@ class Burguer(Base):
     id = Column(Integer,primary_key=True, index=True)
     nombre = Column(String, unique=True, index=True)
     ingredientes = Column(String, unique=True, index=True)
-    ingredientesextra = Column(String, unique=False, default="")
-    is_active = Column(Boolean, unique=False, default=True)
+    is_active = Column(Boolean, unique=False)
     #items = relationship("Item", back_populates="owner")
+    ## setter method to change the value 'a' using an object
+    def set_nombre(self, nombre): #ejemplo de set pero no se usa
+        self.nombre = nombre
 
 """
 class Item(Base):

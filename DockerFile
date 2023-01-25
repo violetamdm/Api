@@ -14,7 +14,6 @@ EXPOSE 8000
 #se ejecutarán cuando se inicie el contenedor
 
 #ENV PATH=/home/violeta.macias/.local/bin:${PATH}
-
 RUN pip install -r ./Api/requirements.txt
 ENTRYPOINT uvicorn $APP --app-dir $APP\_DIR --reload
 CMD ["uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8000"]

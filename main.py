@@ -1,6 +1,3 @@
-#fastapi:
-'''Instalado fastapi y Uvicorn con pip'''
-
 '''
 para iniciar la api poner en consola:
 uvicorn main:app --reload 
@@ -9,39 +6,28 @@ se encuentra en la direccion http://127.0.0.1:8000/
 IMPORTANTE: Aquí esta la API http://127.0.0.1:8000/docs
 '''
 #comando para empezar la API: uvicorn main:app --reload
-#import asyncio
-#import datetime
-#import requests
-from ast import Dict
 from typing import List
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
-import crud, models, schemas
+import crud
+import models
 from database import SessionLocal, engine
 import schemas
 from fastapi import status
 from typing import  List
 from fastapi.testclient import TestClient
 from fastapi import APIRouter
+from fastapi import APIRouter, status
+from typing import List
 
-from fastapi import APIRouter, Query, status
-from pydantic import Required
-from typing import Dict, List
-
-
+app = FastAPI()
 router =  APIRouter()
-
 client = TestClient(router)
-
 models.Base.metadata.create_all(bind=engine)
-#crear archivo .gitignore
-
 #En este ejercicio todas las hamburguesas se llaman 
 # "burguers", no burgers porque he querido.
 
-app = FastAPI()
-
-# Dependency
+# crear la sesion de la bbdd:
 def get_db():
     db = SessionLocal()
     try:
@@ -49,24 +35,19 @@ def get_db():
     finally:
         db.close()
 
-#llamada al home de la API
+'''GET'''
+#llamada a la raíz de la API
 @app.get("/", status_code=status.HTTP_200_OK)  
 def home():  
 	 return { "mensaje" : "Esta es la raíz de la app bienvenido" }
 
-'''
-#llamada para actualizar un item en específico. 
-@app.put("/burguers/{burguer_id}", response_model=schemas.Burguer)
-def update_burguer(burguer_id: int, db: Session = Depends(get_db)):
-    db_burguer = crud.get_burguer_by_id(db, burguer_id=burguer_id)
-    return crud.put_burguer_edit_burguer(db, db_burguer) 
-'''
-
+#GET lista de burguers
 @app.get("/burguers/", response_model=List[schemas.Burguer], status_code=status.HTTP_200_OK)
 def get_burguers(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     burguers = crud.get_burguers(db, skip=skip, limit=limit)
     return burguers
 
+#GET by id
 @app.get("/burguers/{burguer_id}", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
 def burguer_by_id(burguer_id: int, db: Session = Depends(get_db)):
     db_burguer = crud.get_burguer_by_id(db, burguer_id=burguer_id)
@@ -74,13 +55,81 @@ def burguer_by_id(burguer_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Burguer not found")
     return db_burguer
 
+'''POST'''
+#llamada para crear una nueva burguer
+@app.post("/burguers/", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
+def create_burguer_bien(
+    nombre: str, 
+    ingredientes: str, 
+    active: int = -1,
+    db: Session = Depends(get_db)
+    ):  
+    if nombre=="":
+        raise HTTPException(status_code=400, detail="Nombre no puede ser vacío")
+    db_burguer = crud.get_burguer_by_nombre(db, nombre)
+    db_burguer2 = crud.get_burguer_by_ingredientes(db, ingredientes)
+    if db_burguer:
+        raise HTTPException(status_code=400, detail="Nombre already registered")
+    else: 
+        if db_burguer2:
+            raise HTTPException(status_code=400, detail="Other burguer have the same ingredients")
+    return crud.post_create_burguer_bien(db=db, newnombre=nombre, newingredientes=ingredientes, active=active)
+'''OPTIONS'''
+#OPTIONS opciones de comunicación para el 
+# recurso de destino.
+@app.options("/")
+async def options_isactive(burguer_id: int, db: Session = Depends(get_db)):
+    burguer = crud.get_burguer_by_id(db, burguer_id)
+    if burguer == None:
+        raise HTTPException(status_code=404, detail="Burguer not found (this id is not here)")
+    active = crud.options_get_isactive(burguer).__str__()
+    return {"message": active}
+
+'''PUT'''
+#llamada para cualquier item de burguers. 
+@app.put("/burguers/{burguer_id}", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
+def update_burguer_items(burguer_id: int,
+    newnombre: str = "", 
+    ingredientes: str = "",
+    Active: int = -1,
+    db: Session = Depends(get_db)
+    ):  
+    burgueraeditar = crud.get_burguer_by_id(db, burguer_id)
+    db_burguer = crud.get_burguer_by_nombre(db, nombre=newnombre)
+    if db_burguer:
+        raise HTTPException(status_code=400, detail="Nombre already registered")
+    else: 
+        if burgueraeditar == None:
+            raise HTTPException(status_code=400, detail="Id not found")
+    return crud.put_burguer(db=db, newnombre=newnombre, newingredientes=ingredientes, burgueraeditar=burgueraeditar, newactive=Active)
+
+#put para editar nombre solamente
+@app.put("/burguers/", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
+def update_burguer_nombre(burguer_id: int,
+    newnombre: str,  
+    db: Session = Depends(get_db)
+    ):  
+    burgueraeditar = crud.get_burguer_by_id(db, burguer_id)
+    db_burguer = crud.get_burguer_by_nombre(db, nombre=newnombre)
+    if db_burguer:
+        raise HTTPException(status_code=400, detail="Nombre already registered")
+    else: 
+        if burgueraeditar == None:
+            raise HTTPException(status_code=400, detail="Id not found")
+    return crud.put_burguer2(db=db, newnombre=newnombre, burgueraeditar=burgueraeditar)
+
+
+'''DELETE'''
 #DELETE para eliminar un recurso del servidor
-@app.delete("/burguers/{burguer_id}")
-def prueba_delete_by_id(burguer_id: int, db: Session = Depends(get_db), status_code=status.HTTP_200_OK):
+@app.delete("/burguers/{burguer_id}", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
+def prueba_delete_by_id(burguer_id: int, db: Session = Depends(get_db)):
     burguer=crud.get_burguer_by_id(db, burguer_id)
     return  crud.delete_burguer(db, burguer)
 
-#llamada para crear una nueva burguer
+
+    
+#este funciona perfecto:
+''''
 @app.post("/burguers/", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
 def create_burguer(
     burguer: schemas.Burguer,  
@@ -93,17 +142,10 @@ def create_burguer(
     else: 
         if db_burguer2:
             raise HTTPException(status_code=400, detail="Other burguer have the same ingredients")
-    return crud.post_create_burguer(db=db, burguer=burguer)
+    return crud.post_create_burguer(db=db, burguer=burguer)'''
 
-'''#response_model=schemas.Burguer
-@app.put("/burguers/", status_code=status.HTTP_200_OK)
-def update_burguer(burguer_id: int, nombrenuevo: str, db: Session = Depends(get_db)):
-    db_burguer = crud.get_burguer_by_nombre(db, nombrenuevo)
-    if db_burguer:
-        raise HTTPException(status_code=400, detail="Nombre already registered")
-    return  crud.update_burguer_name5(db, nombrenuevo, burguer_id)'''
-
-@app.put("/burguers/", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
+#PUT mal hecho primero borra y luego crea uno nuevo, no edita
+'''@app.put("/burguers/", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
 def update_burguer_nombre_and_ingredientes(burguer_id: int,
     burguer: schemas.Burguer,  
     db: Session = Depends(get_db)
@@ -117,7 +159,7 @@ def update_burguer_nombre_and_ingredientes(burguer_id: int,
         if db_burguer2:
             raise HTTPException(status_code=400, detail="Other burguer have the same ingredients")
     return crud.put_burguer_name_and_ingredients(db=db, burguer=burguer, burguerborrada=burguerborrar)
-
+    '''
 # Ejemplos de endpoints:
 '''
 #POST para crear un recurso del servidor
@@ -170,18 +212,15 @@ from fastapi.testclient import TestClient
 '''client = TestClient(app)'''
 
 #pytest main.py
-'''
+
 def test_read_main():
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json() == { "mensaje" : "Esta es la raíz de la app bienvenido" }'''
+    assert response.json() == { "mensaje" : "Esta es la raíz de la app bienvenido" }
 
 class TryTesting(TestCase):
     def test_always_passes(self):
         self.assertTrue(True)
-
-    '''def test_always_fails(self):
-        self.assertTrue(False)'''
 
 def test_get_home_connection():
     assert home() ==  { "mensaje" : "Esta es la raíz de la app bienvenido" }
@@ -213,3 +252,5 @@ def test_read_main():
 # ir a proyectos\Api
 #Ejecutar comando: 
 # pytest main.py
+
+#chequear si existe
