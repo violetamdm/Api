@@ -1,25 +1,23 @@
-FROM python:3.11
-##ARG MYSQL_SERVER
-##ARG POSTGRES_SERVER
+###FROM imagen de python:
+FROM python:3.11 
+###COPY x y: copia x archivo al contenedor y renombra con el nombre de y 
+COPY . /Api
+#COPY . .
+#COPY ./requirements.txt /Api/requirements.txt
+
+###EXPOSE puerto
+EXPOSE 8000
 WORKDIR /Api
 
-COPY ./requirements.txt ./Api/requirements.txt
-
-#RUN pip install -r ./requirements.txt
-
-EXPOSE 8000
-
-#Esto es importante por alguna razon (ENTRYPOINT):
-#ENTRYPOINT es el comando que define que archivos 
+###ENTRYPOINT es el comando que define que archivos 
 #se ejecutarán cuando se inicie el contenedor
-
+#ENV APP=main:app
+###RUN construir applicación
+#RUN pip install -r ./requirements.txt
+RUN pip install -r /Api/requirements.txt
+CMD ["/usr/local/bin/uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 #ENV PATH=/home/violeta.macias/.local/bin:${PATH}
-RUN pip install -r ./Api/requirements.txt
-ENTRYPOINT uvicorn $APP --app-dir $APP\_DIR --reload
-CMD ["uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8000"]
-#ENV PATH=/home/violeta.macias/.local/bin:${PATH}
-
-
+#CMD ["python", "main.py"]
 #C:\Users\violeta.macias\proyectos\Api
 #CMD ["main:app", "--port", "8000"] 
 #"uvicorn" lo acabo de quitar
@@ -40,4 +38,5 @@ CMD ["uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8000"]
 #para crear el contenedor:
 #puse esto:
 #docker run -d --name appython -p 8000:8000 imagdock
+#docker run -d --name appython -it -p 8000:8000 imagdock
 
