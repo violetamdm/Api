@@ -19,6 +19,7 @@ from fastapi.testclient import TestClient
 from fastapi import APIRouter
 from fastapi import APIRouter, status
 from typing import List
+from PIL import Image
 
 app = FastAPI()
 router =  APIRouter()
@@ -47,6 +48,31 @@ def get_burguers(skip: int = 0, limit: int = 100, db: Session = Depends(get_db))
     burguers = crud.get_burguers(db, skip=skip, limit=limit)
     return burguers
 
+#GET imagen burguer
+@app.get("/burguers/showimages", status_code=status.HTTP_200_OK)
+def get_burguers(id: int = 0, db: Session = Depends(get_db)):
+    burguer = crud.get_burguer_by_id(db, id)
+    strimg = crud.get_img(burguer)
+    img = Image.open(strimg)
+    img.show()
+    return  { "stringimagen" : strimg } 
+
+#GET lista de las imagenes que tienen mis burguers, pueden estar repetidas 
+# no son las que hay pueden existir mas y no estar en uso
+@app.get("/burguers/imgs", status_code=status.HTTP_200_OK)
+def get_obtener_las_imagenes_de_mis_burguers(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    burguers = crud.get_burguers(db, skip=skip, limit=limit)
+    strimgs = ""
+    y=0
+    for x in burguers :
+        if y==0:
+            strimgs = crud.get_img(x)
+            y = 1
+        else: 
+            strimgs = strimgs + ", " + crud.get_img(x)
+    return {"Imagenes": strimgs}
+
+
 #GET by id
 @app.get("/burguers/{burguer_id}", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
 def burguer_by_id(burguer_id: int, db: Session = Depends(get_db)):
@@ -62,9 +88,10 @@ def create_burguer_bien(
     nombre: str, 
     ingredientes: str, 
     active: int = -1,
+    imagen: str ="b.jpg",
     db: Session = Depends(get_db)
     ):  
-    if nombre=="" | ingredientes=="":
+    if nombre=="" or ingredientes=="":
         raise HTTPException(status_code=400, detail=" El nombre y/o los ingredientes no pueden ser vacíos")
     db_burguer = crud.get_burguer_by_nombre(db, nombre)
     db_burguer2 = crud.get_burguer_by_ingredientes(db, ingredientes)
@@ -73,7 +100,7 @@ def create_burguer_bien(
     else: 
         if db_burguer2:
             raise HTTPException(status_code=400, detail="Other burguer have the same ingredients")
-    return crud.post_create_burguer_bien(db=db, newnombre=nombre, newingredientes=ingredientes, active=active)
+    return crud.post_create_burguer_bien(db=db, imagen=imagen, newnombre=nombre, newingredientes=ingredientes, active=active)
 '''OPTIONS'''
 #OPTIONS opciones de comunicación para el 
 # recurso de destino.
@@ -92,6 +119,7 @@ def update_burguer_items(burguer_id: int,
     newnombre: str = "", 
     ingredientes: str = "",
     Active: int = -1,
+    imagen: str="b.jpg",
     db: Session = Depends(get_db)
     ):  
     burgueraeditar = crud.get_burguer_by_id(db, burguer_id)
@@ -101,7 +129,7 @@ def update_burguer_items(burguer_id: int,
     else: 
         if burgueraeditar == None:
             raise HTTPException(status_code=400, detail="Id not found")
-    return crud.put_burguer(db=db, newnombre=newnombre, newingredientes=ingredientes, burgueraeditar=burgueraeditar, newactive=Active)
+    return crud.put_burguer(db=db, img = imagen, newnombre=newnombre, newingredientes=ingredientes, burgueraeditar=burgueraeditar, newactive=Active)
 
 #put para editar nombre solamente
 @app.put("/burguers/", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
