@@ -4,5 +4,6 @@ pytest==7.2.1
 SQLAlchemy==1.4.46
 uvicorn==0.20.0
 httpx
+pillow
 #pip freeze
 #pip install -r requirements.txt
