@@ -5,14 +5,15 @@ import models, schemas
 
 '''POST'''
 #POST crear hamburguesa recibiendo parámetros
-def post_create_burguer_bien(db: Session, newnombre: str, newingredientes: str, active:int):
+def post_create_burguer_bien(db: Session,imagen: str, newnombre: str, newingredientes: str, active:int):
     db_burguer = models.Burguer()
     db_burguer.nombre=newnombre
     db_burguer.ingredientes=newingredientes
+    db_burguer.imagen=imagen
     if active==0:
         db_burguer.is_active=False
     else:
-        if active==1 | active==-1:
+        if active==1 or active==-1:
             db_burguer.is_active=True
         else:
             raise HTTPException(status_code=400, detail="El valor de active debe ser 0 (False), 1 (True) o -1(Default=True)")
@@ -38,6 +39,11 @@ def post_create_burguer(db: Session, burguer: schemas.Burguer):
 def get_burguer_by_id(db: Session, burguer_id: int):
     return db.query(models.Burguer).filter(models.Burguer.id == burguer_id).first()
 
+'''GET'''
+#GET img
+def get_img(burguer: models.Burguer):
+    return burguer.imagen
+
 #GET by nombre
 def get_burguer_by_nombre(db: Session, nombre: str):
     return db.query(models.Burguer).filter(models.Burguer.nombre == nombre).first()
@@ -49,6 +55,7 @@ def get_burguer_by_ingredientes(db: Session, ingredientes: str):
 #GET all
 def get_burguers(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Burguer).offset(skip).limit(limit).all()
+
 
 '''OPTIONS'''
 def options_get_isactive(burguer:models.Burguer):
@@ -81,7 +88,7 @@ def put_burguer_name_and_ingredients(db: Session, burguer: schemas.Burguer, burg
     return db_burguer
 
 #PUT update all
-def put_burguer(db: Session, newnombre: str, newingredientes: str, newactive: int, burgueraeditar: schemas.Burguer):
+def put_burguer(db: Session, img: str, newnombre: str, newingredientes: str, newactive: int, burgueraeditar: schemas.Burguer):
     cambios =False
     if newactive==0:
         burgueraeditar.is_active=False
@@ -98,6 +105,9 @@ def put_burguer(db: Session, newnombre: str, newingredientes: str, newactive: in
         cambios=True
     if newingredientes != "":
         burgueraeditar.ingredientes = newingredientes
+        cambios=True
+    if img != "":
+        burgueraeditar.imagen = img
         cambios=True
     if cambios == False:
         raise HTTPException(status_code=400, detail="No se han introducido datos")

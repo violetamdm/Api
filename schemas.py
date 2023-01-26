@@ -23,6 +23,7 @@ class Burguer(BaseModel):
     is_active: bool
     ingredientes: str
     nombre: str
+    imagen: str
     class Config:
         orm_mode = True
     
