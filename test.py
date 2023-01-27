@@ -5,12 +5,11 @@ from endpoints import home, create_burguer_bien
 from fastapi.testclient import TestClient
 from fastapi import APIRouter
 from unittest import TestCase
-from fastapi.testclient import TestClient
 from database import SessionLocal
 #Por consola:
 # ir a proyectos\Api
 #Ejecutar comando: 
-# pytest main.py
+# pytest test.py
 # (checkear si existe)
 
 router =  APIRouter()
@@ -27,7 +26,7 @@ def test_get_home_connection():
 def test_post():
     db = SessionLocal()
     burgueraux = schemas.Burguer(id=1,is_active=False,ingredientes="ole", nombre="sudo", imagen="b.jpg")
-    burgueraux2 = create_burguer_bien("sudo", "ole",0,"b.jpg", db)
+    burgueraux2 = create_burguer_bien("sudo", "ole",0,"b.jpg", db) #POST
     assert  burgueraux2.nombre == burgueraux.nombre
     assert  burgueraux2.ingredientes == burgueraux.ingredientes
     assert  burgueraux2.imagen == burgueraux.imagen
