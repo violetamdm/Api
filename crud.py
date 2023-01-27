@@ -56,14 +56,13 @@ def get_burguer_by_ingredientes(db: Session, ingredientes: str):
 def get_burguers(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Burguer).offset(skip).limit(limit).all()
 
+# get ing by burguer
+def get_ing(burguer: schemas.Burguer):
+    return burguer.ingredientes
 
 '''OPTIONS'''
 def options_get_isactive(burguer:models.Burguer):
     return burguer.is_active
-
-def get_ing(burguer: schemas.Burguer):
-    return burguer.ingredientes
-
 
 '''PUT'''
 #PUT update name
@@ -121,4 +120,3 @@ def delete_burguer(db: Session, burguer: schemas.Burguer):
     db.delete(burguer)
     db.commit()
     return db
-

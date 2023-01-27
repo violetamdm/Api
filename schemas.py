@@ -26,6 +26,3 @@ class Burguer(BaseModel):
     imagen: str
     class Config:
         orm_mode = True
-    
-
-
