@@ -20,6 +20,7 @@ def get_db():
 
 
 '''GET'''
+
 #GET que redirige a /docs desde la raiz del proyecto
 @app.get("/")
 async def redirect_typer():

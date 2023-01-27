@@ -2,7 +2,6 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 import models, schemas
 
-
 '''POST'''
 #POST crear hamburguesa recibiendo parámetros
 def post_create_burguer_bien(db: Session,imagen: str, newnombre: str, newingredientes: str, active:int):
