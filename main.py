@@ -8,7 +8,10 @@ Hay que importar app para que cuando se ejecute el comando
 uvicorn main:app la app se detecte en el main (mapping)
 
 Se encuentra en la direccion http://127.0.0.1:8000/
-IMPORTANTE: Aquí esta la API http://127.0.0.1:8000/docs
+IMPORTANTE: Aquí esta la API http://127.0.0.1:8000/docs 
+
+Para realizar peticiones hhttp es necesario tener el archivo
+sql_alpp.db que es creado al ejecutar los test:
 
 Para ejecutar los test se ejecutara el siguiente comando:
 pytest test.py
