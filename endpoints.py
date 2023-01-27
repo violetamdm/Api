@@ -18,23 +18,25 @@ def get_db():
     finally:
         db.close()
 
+
+'''GET'''
+#GET que redirige a /docs desde la raiz del proyecto
 @app.get("/")
 async def redirect_typer():
     return RedirectResponse("http://127.0.0.1:8000/docs")
 
-'''GET'''
-#llamada a la raíz de la API
+#ejemplo de get
 @app.get("/home", status_code=status.HTTP_200_OK)  
 def home():  
 	 return { "mensaje" : "Usted se encuentra en la /home de la app bienvenido" }
-     
+
 #GET lista de burguers
 @app.get("/burguers/", response_model=List[schemas.Burguer], status_code=status.HTTP_200_OK)
 def get_burguers(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     burguers = crud.get_burguers(db, skip=skip, limit=limit)
     return burguers
 
-#GET imagen burguer
+#GET abre la imagen burguer
 @app.get("/burguers/showimages", status_code=status.HTTP_200_OK)
 def get_burguers(id: int = 0, db: Session = Depends(get_db)):
     burguer = crud.get_burguer_by_id(db, id)
@@ -43,6 +45,7 @@ def get_burguers(id: int = 0, db: Session = Depends(get_db)):
     img.show()
     return  { "stringimagen" : strimg } 
 
+#GET muestra una imagen como respuesta
 @app.get("/burguers/showimages2", response_class=FileResponse)
 async def get_img(id: int = 0, db: Session = Depends(get_db)):
     burguer = crud.get_burguer_by_id(db, id)

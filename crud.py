@@ -38,8 +38,7 @@ def post_create_burguer(db: Session, burguer: schemas.Burguer):
 #GET by id
 def get_burguer_by_id(db: Session, burguer_id: int):
     return db.query(models.Burguer).filter(models.Burguer.id == burguer_id).first()
-
-'''GET'''
+    
 #GET img
 def get_img(burguer: models.Burguer):
     return burguer.imagen

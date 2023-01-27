@@ -1,7 +1,7 @@
 import models
 from database import engine
 import schemas
-from endpoints import home
+from endpoints import home, get_img
 from fastapi.testclient import TestClient
 from fastapi import APIRouter
 from unittest import TestCase
@@ -20,6 +20,10 @@ models.Base.metadata.create_all(bind=engine)
 class TryTesting(TestCase):
     def test_always_passes(self):
         self.assertTrue(True)
+
+def test_get_home_connection():
+    assert home() ==  { "mensaje" : "Usted se encuentra en la /home de la app bienvenido" }
+
 
 def test_get_home_connection():
     assert home() ==  { "mensaje" : "Usted se encuentra en la /home de la app bienvenido" }
