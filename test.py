@@ -8,6 +8,7 @@ from unittest import TestCase
 from fastapi.testclient import TestClient
 from database import SessionLocal
 import crud
+
 #Por consola:
 # ir a proyectos\Api
 #Ejecutar comando: 
