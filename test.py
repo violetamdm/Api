@@ -1,21 +1,21 @@
 import models
 from database import engine
 import schemas
-from endpoints import home, create_burguer_bien
+from endpoints import home, create_burguer_bien, update_burguer_nombre
 from fastapi.testclient import TestClient
 from fastapi import APIRouter
 from unittest import TestCase
-from fastapi.testclient import TestClient
 from database import SessionLocal
 #Por consola:
 # ir a proyectos\Api
 #Ejecutar comando: 
-# pytest main.py
+# pytest test.py
 # (checkear si existe)
 
 router =  APIRouter()
 client = TestClient(router)
 models.Base.metadata.create_all(bind=engine)
+db = SessionLocal()
 
 class TryTesting(TestCase):
     def test_always_passes(self):
@@ -25,13 +25,20 @@ def test_get_home_connection():
     assert home() ==  { "mensaje" : "Usted se encuentra en la /home de la app bienvenido" }
 
 def test_post():
-    db = SessionLocal()
+    db
     burgueraux = schemas.Burguer(id=1,is_active=False,ingredientes="ole", nombre="sudo", imagen="b.jpg")
-    burgueraux2 = create_burguer_bien("sudo", "ole",0,"b.jpg", db)
+    burgueraux2 = create_burguer_bien("sudo", "ole",0,"b.jpg", db) #POST
     assert  burgueraux2.nombre == burgueraux.nombre
     assert  burgueraux2.ingredientes == burgueraux.ingredientes
     assert  burgueraux2.imagen == burgueraux.imagen
     assert  burgueraux2.is_active == burgueraux.is_active
+
+def test_patch():
+    db
+    burgueraux = schemas.Burguer(id=1,is_active=False,ingredientes="ole", nombre="sudo", imagen="b.jpg")
+    burgueraux2 = update_burguer_nombre(1, "ole", db) #POST
+    assert  burgueraux2.nombre != burgueraux.nombre
+    assert  burgueraux2.nombre == "ole"
 
 '''def test_get_img_connection():
     db  = SessionLocal()
