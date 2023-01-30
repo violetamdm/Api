@@ -210,6 +210,9 @@ def root_head(db: Session = Depends(get_db)):
 '''TRACE'''
 #TRACE 
 #return JSONResponse(content=content, headers=headers)
+@app.trace("/")
+async def prueba_trace():
+    return {"message": "esto es una prueba"}
 '''
 NO SE PUEDE HACER EL TRACE:
 TypeError: Failed to execute 'fetch' on 'Window': 'TRACE' HTTP method is unsupported.'''
