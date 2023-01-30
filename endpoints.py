@@ -18,9 +18,127 @@ def get_db():
     finally:
         db.close()
 
+#Clase creada para el metodo options
+class path ():
+    OPTIONS: bool
+    POST: bool 
+    PUT: bool 
+    PATCH: bool 
+    GET: bool 
+    HEAD: bool 
+    TRACE: bool 
+    DELETE: bool 
+    path: str
+
+path1 = path()
+path1.path = "/"
+path1.OPTIONS = True
+path1.GET = True
+path1.HEAD = True
+
+path2 = path()
+path2.OPTIONS = True
+path2.GET = True
+path2.POST = True
+
+'''OPTIONS'''
+#OPTIONS opciones de comunicación para el 
+# recurso de destino.
+@app.options("/")
+async def options():
+    return path1
+
+@app.options("/burguers/")
+async def options():
+    return path2
+
+
+'''POST'''
+#llamada para crear una nueva burguer
+@app.post("/burguers/", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
+def create_burguer_bien(
+    nombre: str, 
+    ingredientes: str, 
+    active: int = -1,
+    imagen: str ="b.jpg",
+    db: Session = Depends(get_db)
+    ):  
+    if nombre=="" or ingredientes=="":
+        raise HTTPException(status_code=400, detail=" El nombre y/o los ingredientes no pueden ser vacíos")
+    db_burguer = crud.get_burguer_by_nombre(db, nombre)
+    db_burguer2 = crud.get_burguer_by_ingredientes(db, ingredientes)
+    if db_burguer:
+        raise HTTPException(status_code=400, detail="Nombre already registered")
+    else: 
+        if db_burguer2:
+            raise HTTPException(status_code=400, detail="Other burguer have the same ingredients")
+    return crud.post_create_burguer_bien(db=db, imagen=imagen, newnombre=nombre, newingredientes=ingredientes, active=active)
+
+'''PUT'''
+#llamada para cualquier item de burguers. 
+@app.put("/burguers/{burguer_id}", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
+def update_burguer_items(burguer_id: int,
+    newnombre: str = "", 
+    ingredientes: str = "",
+    Active: int = -1,
+    imagen: str="b.jpg",
+    db: Session = Depends(get_db)
+    ):  
+    burgueraeditar = crud.get_burguer_by_id(db, burguer_id)
+    db_burguer = crud.get_burguer_by_nombre(db, nombre=newnombre)
+    if db_burguer:
+        raise HTTPException(status_code=400, detail="Nombre already registered")
+    else: 
+        if burgueraeditar == None:
+            raise HTTPException(status_code=400, detail="Id not found")
+    return crud.put_burguer(db=db, img = imagen, newnombre=newnombre, newingredientes=ingredientes, burgueraeditar=burgueraeditar, newactive=Active)
+
+#PUT mal hecho primero borra y luego crea uno nuevo, no edita
+'''@app.put("/burguers/", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
+def update_burguer_nombre_and_ingredientes(burguer_id: int,
+    burguer: schemas.Burguer,  
+    db: Session = Depends(get_db)
+    ):  
+    burguerborrar = crud.get_burguer_by_id(db, burguer_id)
+    db_burguer = crud.get_burguer_by_nombre(db, nombre=burguer.nombre)
+    db_burguer2 = crud.get_burguer_by_ingredientes(db, ingredientes=burguer.ingredientes)
+    if db_burguer:
+        raise HTTPException(status_code=400, detail="Nombre already registered")
+    else: 
+        if db_burguer2:
+            raise HTTPException(status_code=400, detail="Other burguer have the same ingredients")
+    return crud.put_burguer_name_and_ingredients(db=db, burguer=burguer, burguerborrada=burguerborrar)
+    '''
+
+'''PATCH'''
+#PATCH hace modificaciones parciales a un recurso.
+@app.patch("/burguers/{nombre}", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
+def update_burguer_nombre(burguer_id: int,
+    newnombre: str,  
+    db: Session = Depends(get_db)
+    ):  
+    burgueraeditar = crud.get_burguer_by_id(db, burguer_id)
+    db_burguer = crud.get_burguer_by_nombre(db, nombre=newnombre)
+    if db_burguer:
+        raise HTTPException(status_code=400, detail="Nombre already registered")
+    else: 
+        if burgueraeditar == None:
+            raise HTTPException(status_code=400, detail="Id not found")
+    return crud.patch_burguer_name(db=db, newnombre=newnombre, burgueraeditar=burgueraeditar)
+
+@app.patch("/{is_active}", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
+def update_burguer_active(burguer_id: int,
+    newactive: int = -1,  
+    db: Session = Depends(get_db)
+    ):  
+    burgueraeditar = crud.get_burguer_by_id(db, burguer_id) 
+    if burgueraeditar == None:
+        raise HTTPException(status_code=400, detail="Id not found")
+    return crud.patch_burguer_active(db=db, active=newactive, burgueraeditar=burgueraeditar) 
+    #newactive: int = -1, 
+    #crud.patch_burguer_active(db=db, active=newactive, burgueraeditar=burgueraeditar)
 
 '''GET'''
-
 #GET que redirige a /docs desde la raiz del proyecto
 @app.get("/")
 async def redirect_typer():
@@ -68,7 +186,6 @@ def get_obtener_las_imagenes_de_mis_burguers(skip: int = 0, limit: int = 100, db
             strimgs = strimgs + ", " + crud.get_img(x)
     return {"Imagenes": strimgs}
 
-
 #GET by id
 @app.get("/burguers/{burguer_id}", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
 def burguer_by_id(burguer_id: int, db: Session = Depends(get_db)):
@@ -77,87 +194,35 @@ def burguer_by_id(burguer_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Burguer not found")
     return db_burguer
 
-'''POST'''
-#llamada para crear una nueva burguer
-@app.post("/burguers/", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
-def create_burguer_bien(
-    nombre: str, 
-    ingredientes: str, 
-    active: int = -1,
-    imagen: str ="b.jpg",
-    db: Session = Depends(get_db)
-    ):  
-    if nombre=="" or ingredientes=="":
-        raise HTTPException(status_code=400, detail=" El nombre y/o los ingredientes no pueden ser vacíos")
-    db_burguer = crud.get_burguer_by_nombre(db, nombre)
-    db_burguer2 = crud.get_burguer_by_ingredientes(db, ingredientes)
-    if db_burguer:
-        raise HTTPException(status_code=400, detail="Nombre already registered")
-    else: 
-        if db_burguer2:
-            raise HTTPException(status_code=400, detail="Other burguer have the same ingredients")
-    return crud.post_create_burguer_bien(db=db, imagen=imagen, newnombre=nombre, newingredientes=ingredientes, active=active)
-'''OPTIONS'''
-#OPTIONS opciones de comunicación para el 
-# recurso de destino.
-@app.options("/")
-async def options_isactive(burguer_id: int, db: Session = Depends(get_db)):
+@app.get("/burguers/active")
+async def isactive_by_id(burguer_id: int, db: Session = Depends(get_db)):
     burguer = crud.get_burguer_by_id(db, burguer_id)
     if burguer == None:
         raise HTTPException(status_code=404, detail="Burguer not found (this id is not here)")
     active = crud.options_get_isactive(burguer).__str__()
     return {"message": active}
 
-'''PUT'''
-#llamada para cualquier item de burguers. 
-@app.put("/burguers/{burguer_id}", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
-def update_burguer_items(burguer_id: int,
-    newnombre: str = "", 
-    ingredientes: str = "",
-    Active: int = -1,
-    imagen: str="b.jpg",
-    db: Session = Depends(get_db)
-    ):  
-    burgueraeditar = crud.get_burguer_by_id(db, burguer_id)
-    db_burguer = crud.get_burguer_by_nombre(db, nombre=newnombre)
-    if db_burguer:
-        raise HTTPException(status_code=400, detail="Nombre already registered")
-    else: 
-        if burgueraeditar == None:
-            raise HTTPException(status_code=400, detail="Id not found")
-    return crud.put_burguer(db=db, img = imagen, newnombre=newnombre, newingredientes=ingredientes, burgueraeditar=burgueraeditar, newactive=Active)
+'''HEAD'''
+@app.head("/", response_model=None, status_code=status.HTTP_200_OK)
+def root_head(db: Session = Depends(get_db)):
+    return db.connection
 
-#put para editar nombre solamente
-@app.put("/burguers/", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
-def update_burguer_nombre(burguer_id: int,
-    newnombre: str,  
-    db: Session = Depends(get_db)
-    ):  
-    burgueraeditar = crud.get_burguer_by_id(db, burguer_id)
-    db_burguer = crud.get_burguer_by_nombre(db, nombre=newnombre)
-    if db_burguer:
-        raise HTTPException(status_code=400, detail="Nombre already registered")
-    else: 
-        if burgueraeditar == None:
-            raise HTTPException(status_code=400, detail="Id not found")
-    return crud.put_burguer2(db=db, newnombre=newnombre, burgueraeditar=burgueraeditar)
-
-
-#PUT mal hecho primero borra y luego crea uno nuevo, no edita
-'''@app.put("/burguers/", response_model=schemas.Burguer, status_code=status.HTTP_200_OK)
-def update_burguer_nombre_and_ingredientes(burguer_id: int,
-    burguer: schemas.Burguer,  
-    db: Session = Depends(get_db)
-    ):  
-    burguerborrar = crud.get_burguer_by_id(db, burguer_id)
-    db_burguer = crud.get_burguer_by_nombre(db, nombre=burguer.nombre)
-    db_burguer2 = crud.get_burguer_by_ingredientes(db, ingredientes=burguer.ingredientes)
-    if db_burguer:
-        raise HTTPException(status_code=400, detail="Nombre already registered")
-    else: 
-        if db_burguer2:
-            raise HTTPException(status_code=400, detail="Other burguer have the same ingredients")
-    return crud.put_burguer_name_and_ingredients(db=db, burguer=burguer, burguerborrada=burguerborrar)
+'''TRACE'''
+#TRACE 
+#return JSONResponse(content=content, headers=headers)
+'''
+NO SE PUEDE HACER EL TRACE:
+TypeError: Failed to execute 'fetch' on 'Window': 'TRACE' HTTP method is unsupported.'''
+'''
+@app.trace("/", response_model=None, status_code=status.HTTP_200_OK)
+def trace(db: Session = Depends(get_db), phttp : int = 1):
+    db.connection()
+    content = "HTTP/1.1"
+    headers = "TRACE"
+    PeticionesHTTP(phttp)
+    tracer = TracerProvider(resource=resource)
+    trace.set_tracer_provider(tracer)
+    return ""
     '''
 
 '''DELETE'''
@@ -193,6 +258,8 @@ async def prueba_put(id):
 async def prueba_patch(id):
     return {"message": "esto es una prueba"}
 
+#HEAD para conocer el numero de recursos disponibles en el servidor
+
 #GET para obtener un recurso del servidor
 @app.get("/recursos/{recurso_id}")
 async def prueba_get(recurso_id: int, q: Optional[str]=None):
@@ -207,6 +274,7 @@ async def prueba_delete(id):
 #TRACE  realizar una prueba de bucle invertido
 #de mensajes que prueba la ruta del recurso 
 # e destino (útil para fines de depuración).
+El servidor responde en el cuerpo del mensaje con la misma petición que el cliente ha realizado.
 @app.trace("/")
 async def prueba_trace(id):
     return {"message": "esto es una prueba"}

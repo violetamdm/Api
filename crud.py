@@ -64,8 +64,22 @@ def options_get_isactive(burguer:models.Burguer):
 
 '''PUT'''
 #PUT update name
-def put_burguer2(db: Session, newnombre: str, burgueraeditar: schemas.Burguer):
+def patch_burguer_name(db: Session, newnombre: str, burgueraeditar: schemas.Burguer):
     burgueraeditar.nombre = newnombre
+    db.commit()
+    return burgueraeditar
+
+def patch_burguer_active(db: Session, active: str, burgueraeditar: schemas.Burguer):
+    if active==0:
+        burgueraeditar.is_active=False
+    else:
+        if active==1:
+            burgueraeditar.is_active=True
+        else:
+            if active != -1:
+                raise HTTPException(status_code=400, detail="El valor de active debe ser 0 (False) o 1 (True)")
+            else:
+                raise HTTPException(status_code=400, detail="Debe introducir el valor de active: 0 (False) o 1 (True)")
     db.commit()
     return burgueraeditar
 

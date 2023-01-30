@@ -1,5 +1,6 @@
 # sintaxis: from carpeta.nombre_del_modulo import x
 from endpoints import app 
+
 '''
 Para iniciar la API ejecutar en consola el comando:
 uvicorn main:app --reload 
